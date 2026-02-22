@@ -5,13 +5,13 @@ import os
 # পেজ সেটআপ
 st.set_page_config(page_title="Ultimate Downloader", page_icon="📥", layout="wide")
 
-# সিএসএস দিয়ে ইন্টারফেস রঙিন করা
+# শুধুমাত্র স্টাইল (CSS) যোগ করা
 st.markdown("""
     <style>
     .stApp {
-        background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+        background: linear-gradient(-45deg, #4158D0, #C850C0, #FFCC70, #23d5ab);
         background-size: 400% 400%;
-        animation: gradient 15s ease infinite;
+        animation: gradient 10s ease infinite;
     }
     @keyframes gradient {
         0% { background-position: 0% 50%; }
@@ -24,6 +24,7 @@ st.markdown("""
         border-radius: 20px;
         backdrop-filter: blur(10px);
         border: 1px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 8px 32px rgba(0,0,0,0.1);
     }
     h1, h2, h3, p, label {
         color: white !important;
@@ -33,11 +34,12 @@ st.markdown("""
         width: 100%;
         border-radius: 30px;
         height: 3.5em;
-        background: white !important;
-        color: #e73c7e !important;
+        background: #ffffff !important;
+        color: #C850C0 !important;
         font-weight: bold;
         border: none;
     }
+    /* ক্রেডিট সেকশনের স্টাইল */
     .footer {
         position: fixed;
         left: 0;
@@ -46,8 +48,8 @@ st.markdown("""
         background-color: rgba(0, 0, 0, 0.5);
         color: white;
         text-align: center;
-        padding: 8px;
-        font-size: 14px;
+        padding: 10px;
+        font-weight: bold;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -60,13 +62,8 @@ url = st.text_input("ভিডিও লিঙ্কটি এখানে দ�
 
 if url:
     try:
-        with st.spinner('ভিডিওর তথ্য আনা হচ্ছে...'):
-            # তথ্য সংগ্রহের সময় ৪0৩ এরর এড়াতে cookies বা user-agent ব্যবহার
-            ydl_opts_info = {
-                'quiet': True,
-                'no_warnings': True,
-                'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-            }
+        with st.spinner('ভিডিওর তথ্য ও ডেসক্রিপশন আনা হচ্ছে...'):
+            ydl_opts_info = {'format': 'best'}
             with yt_dlp.YoutubeDL(ydl_opts_info) as ydl:
                 info = ydl.extract_info(url, download=False)
                 video_url = info.get('url') 
@@ -76,7 +73,7 @@ if url:
                 view_count = info.get('view_count')
 
             st.subheader(f"🎥 {video_title}")
-            st.video(url) # সরাসরি লিঙ্ক ব্যবহার করা নিরাপদ
+            st.video(video_url)
             
             with st.expander("ভিডিওর বিস্তারিত ডেসক্রিপশন দেখুন"):
                 st.write(f"**আপলোডার:** {uploader}")
@@ -86,7 +83,7 @@ if url:
 
             st.success("তথ্য লোড হয়েছে! নিচে ডাউনলোড অপশন বেছে নিন।")
     except Exception as e:
-        st.error(f"তথ্য আনা সম্ভব হয়নি: {e}")
+        st.error("তথ্য আনা সম্ভব হয়নি। লিঙ্কটি আবার চেক করুন।")
 
 st.markdown("---")
 format_choice = st.radio("কী ফরম্যাটে সেভ করতে চান?", ("ভিডিও (MP4)", "অডিও (MP3)"), horizontal=True)
@@ -95,14 +92,8 @@ if st.button("ডাউনলোড শুরু করুন"):
     if url:
         try:
             with st.spinner('ডাউনলোড হচ্ছে...'):
-                # ডাউনলোড করার সময় ৪0৩ এরর ফিক্স করার অপশন
-                ydl_opts = {
-                    'nocheckcertificate': True,
-                    'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-                }
-
                 if format_choice == "অডিও (MP3)":
-                    ydl_opts.update({
+                    ydl_opts = {
                         'format': 'bestaudio/best',
                         'postprocessors': [{
                             'key': 'FFmpegExtractAudio',
@@ -110,13 +101,13 @@ if st.button("ডাউনলোড শুরু করুন"):
                             'preferredquality': '192',
                         }],
                         'outtmpl': 'downloaded_audio.%(ext)s',
-                    })
+                    }
                 else:
-                    ydl_opts.update({
+                    ydl_opts = {
                         'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
                         'outtmpl': 'downloaded_video.mp4',
                         'merge_output_format': 'mp4',
-                    })
+                    }
 
                 with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                     info_data = ydl.extract_info(url, download=True)
@@ -135,12 +126,11 @@ if st.button("ডাউনলোড শুরু করুন"):
                 st.balloons()
         except Exception as e:
             st.error(f"ভুল হয়েছে: {e}")
-
 st.markdown('</div>', unsafe_allow_html=True)
 
-# আপনার ক্রেডিট সেকশন
+# --- ক্রেডিট সেকশন (পরিবর্তন করুন এখানে) ---
 st.markdown("""
     <div class="footer">
-        Developed with ❤️ by <a href="#" style="color: #FFCC70; text-decoration: none;">আপনার নাম</a>
+        <p>Developed with ❤️ by <a href="আপনার_লিঙ্ক" style="color: #FFCC70; text-decoration: none;">আপনার নাম</a></p>
     </div>
     """, unsafe_allow_html=True)
