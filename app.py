@@ -131,6 +131,7 @@ st.markdown('</div>', unsafe_allow_html=True)
 # --- ক্রেডিট সেকশন (পরিবর্তন করুন এখানে) ---
 st.markdown("""
     <div class="footer">
-        <p>Developed with ❤️ by <a href="আপনার_লিঙ্ক" style="color: #FFCC70; text-decoration: none;">MD RASHED MIAH</a></p>
+        <p>Developed with ❤️ by <a href="https://www.facebook.com/md.rashed.miah.977782" style="color: #FFCC70; text-decoration: none;">MD RASHED MIAH</a></p>
     </div>
     """, unsafe_allow_html=True)
+
