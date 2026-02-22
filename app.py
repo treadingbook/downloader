@@ -5,7 +5,7 @@ import os
 # পেজ সেটআপ
 st.set_page_config(page_title="Cyber Video Downloader", page_icon="📟", layout="wide")
 
-# হ্যাকার টাইপ স্টাইল (CSS) - শুধুমাত্র স্টাইল পরিবর্তন করা হয়েছে
+# হ্যাকার টাইপ স্টাইল (CSS)
 st.markdown("""
     <style>
     /* ডার্ক এবং হ্যাকার ব্যাকগ্রাউন্ড */
@@ -26,6 +26,7 @@ st.markdown("""
         border: 1px solid #00FF41;
         box-shadow: 0 0 15px rgba(0, 255, 65, 0.4);
         backdrop-filter: blur(5px);
+        margin-bottom: 80px; /* ফুটারের জন্য জায়গা */
     }
 
     /* টাইটেল এবং সব টেক্সট কালার গ্রিন */
@@ -40,11 +41,6 @@ st.markdown("""
         color: #00FF41 !important;
         border: 1px solid #00FF41 !important;
         font-family: 'Courier New', monospace;
-    }
-
-    /* রেডিও বাটন */
-    .stRadio>div {
-        color: #00FF41 !important;
     }
 
     /* হ্যাকার টাইপ বাটন */
@@ -64,28 +60,34 @@ st.markdown("""
         background: #00FF41 !important;
         color: black !important;
         box-shadow: 0 0 20px #00FF41;
-        cursor: crosshair;
     }
 
-    /* ফুটার সেকশন */
+    /* ফুটার সেকশন (ক্রেডিট) */
     .footer {
         position: fixed;
         left: 0;
         bottom: 0;
         width: 100%;
-        background-color: rgba(0, 0, 0, 0.9);
+        background-color: rgba(0, 0, 0, 0.95);
         color: #00FF41;
         text-align: center;
-        padding: 8px;
-        border-top: 1px solid #00FF41;
-        font-size: 14px;
+        padding: 15px;
+        border-top: 2px solid #00FF41;
+        font-family: 'Courier New', monospace;
+        letter-spacing: 1px;
+        z-index: 100;
     }
-
-    /* টেক্সট এরিয়া ও এক্সপ্যান্ডার */
-    .stTextArea textarea, .streamlit-expanderHeader {
-        background-color: #000 !important;
-        color: #00FF41 !important;
-        border: 1px solid #00FF41 !important;
+    .footer a {
+        color: #fff;
+        text-decoration: none;
+        background: #004d1a;
+        padding: 2px 8px;
+        border-radius: 4px;
+        transition: 0.3s;
+    }
+    .footer a:hover {
+        background: #00FF41;
+        color: #000;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -99,8 +101,13 @@ url = st.text_input("> ENTER VIDEO SOURCE URL:", placeholder="Paste link here...
 
 if url:
     try:
-        with st.spinner('📡 EXTRACTING METADATA... PLEASE WAIT...'):
-            ydl_opts_info = {'format': 'best'}
+        with st.spinner('📡 EXTRACTING METADATA...'):
+            # ৪0৩ এরর এড়াতে ইউজার এজেন্ট যুক্ত করা হয়েছে
+            ydl_opts_info = {
+                'quiet': True,
+                'no_warnings': True,
+                'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+            }
             with yt_dlp.YoutubeDL(ydl_opts_info) as ydl:
                 info = ydl.extract_info(url, download=False)
                 video_url = info.get('url') 
@@ -110,7 +117,7 @@ if url:
                 view_count = info.get('view_count')
 
             st.subheader(f"🎬 TARGET: {video_title}")
-            st.video(video_url)
+            st.video(url)
             
             with st.expander("📝 VIEW RAW METADATA"):
                 st.write(f"**UPLOADER:** {uploader}")
@@ -118,9 +125,9 @@ if url:
                 st.markdown("---")
                 st.text(video_description) 
 
-            st.success("SUCCESS: DATA PACKETS READY FOR DOWNLOAD.")
+            st.success("SUCCESS: DATA PACKETS READY FOR EXTRACTION.")
     except Exception as e:
-        st.error("ERROR: SYSTEM COULD NOT RETRIEVE DATA.")
+        st.error(f"ERROR: SYSTEM FAILURE - {e}")
 
 st.markdown("---")
 format_choice = st.radio("> SELECT EXPORT FORMAT:", ("ভিডিও (MP4)", "অডিও (MP3)"), horizontal=True)
@@ -128,23 +135,28 @@ format_choice = st.radio("> SELECT EXPORT FORMAT:", ("ভিডিও (MP4)", "�
 if st.button("EXECUTE DOWNLOAD"):
     if url:
         try:
-            with st.spinner('⚡ DOWNLOADING...'):
+            with st.spinner('⚡ DOWNLOADING DATA...'):
+                ydl_opts = {
+                    'nocheckcertificate': True,
+                    'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+                }
+
                 if format_choice == "অডিও (MP3)":
-                    ydl_opts = {
+                    ydl_opts.update({
                         'format': 'bestaudio/best',
                         'postprocessors': [{
                             'key': 'FFmpegExtractAudio',
                             'preferredcodec': 'mp3',
                             'preferredquality': '192',
                         }],
-                        'outtmpl': 'downloaded_audio.%(ext)s',
-                    }
+                        'outtmpl': 'cyber_audio.%(ext)s',
+                    })
                 else:
-                    ydl_opts = {
+                    ydl_opts.update({
                         'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
-                        'outtmpl': 'downloaded_video.mp4',
+                        'outtmpl': 'cyber_video.mp4',
                         'merge_output_format': 'mp4',
-                    }
+                    })
 
                 with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                     info_data = ydl.extract_info(url, download=True)
@@ -165,9 +177,11 @@ if st.button("EXECUTE DOWNLOAD"):
             st.error(f"FATAL ERROR: {e}")
 st.markdown('</div>', unsafe_allow_html=True)
 
-# --- ক্রেডিট সেকশন ---
+# --- আপনার স্টাইলিশ ক্রেডিট সেকশন ---
 st.markdown("""
     <div class="footer">
-        <p>Developed with 🖥️ by <a href="#" style="color: #00FF41; text-decoration: none; font-weight: bold;">আপনার নাম</a> | SYSTEM_VERSION_1.0</p>
+        <p>CORE_DEVELOPER: <a href="আপনার_লিঙ্ক_এখানে">আপনার নাম</a> | 
+        PROTOCOL: <span style="color: #fff;">v1.0.4-SECURE</span> | 
+        STATUS: <span style="color: #fff;">ENCRYPTED</span></p>
     </div>
     """, unsafe_allow_html=True)
