@@ -5,10 +5,9 @@ import os
 # পেজ সেটআপ
 st.set_page_config(page_title="Ultimate Downloader", page_icon="📥", layout="wide")
 
-# কোড পরিবর্তন না করে শুধুমাত্র স্টাইল (CSS) যোগ করা
+# শুধুমাত্র স্টাইল (CSS) যোগ করা
 st.markdown("""
     <style>
-    /* রঙিন অ্যানিমেটেড ব্যাকগ্রাউন্ড */
     .stApp {
         background: linear-gradient(-45deg, #4158D0, #C850C0, #FFCC70, #23d5ab);
         background-size: 400% 400%;
@@ -19,8 +18,6 @@ st.markdown("""
         50% { background-position: 100% 50%; }
         100% { background-position: 0% 50%; }
     }
-
-    /* কন্টেনার কার্ড স্টাইল */
     .main-box {
         background-color: rgba(255, 255, 255, 0.2);
         padding: 30px;
@@ -29,14 +26,10 @@ st.markdown("""
         border: 1px solid rgba(255, 255, 255, 0.3);
         box-shadow: 0 8px 32px rgba(0,0,0,0.1);
     }
-
-    /* টেক্সট ও টাইটেল কালার */
     h1, h2, h3, p, label {
         color: white !important;
         text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
     }
-
-    /* ডাউনলোড বাটন স্টাইল */
     .stButton>button {
         width: 100%;
         border-radius: 30px;
@@ -45,12 +38,22 @@ st.markdown("""
         color: #C850C0 !important;
         font-weight: bold;
         border: none;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+    /* ক্রেডিট সেকশনের স্টাইল */
+    .footer {
+        position: fixed;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        color: white;
+        text-align: center;
+        padding: 10px;
+        font-weight: bold;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# আপনার মূল কোড এখান থেকে শুরু
 st.markdown('<div class="main-box">', unsafe_allow_html=True)
 st.title("📥 ভিডিও ডাউনলোডার ও ডিটেইলস")
 st.markdown("---")
@@ -69,11 +72,9 @@ if url:
                 uploader = info.get('uploader')
                 view_count = info.get('view_count')
 
-            # ভিডিও প্রিভিউ
             st.subheader(f"🎥 {video_title}")
             st.video(video_url)
             
-            # ডেসক্রিপশন ও অন্যান্য তথ্য দেখানোর অংশ
             with st.expander("ভিডিওর বিস্তারিত ডেসক্রিপশন দেখুন"):
                 st.write(f"**আপলোডার:** {uploader}")
                 st.write(f"**মোট ভিউ:** {view_count}")
@@ -126,3 +127,10 @@ if st.button("ডাউনলোড শুরু করুন"):
         except Exception as e:
             st.error(f"ভুল হয়েছে: {e}")
 st.markdown('</div>', unsafe_allow_html=True)
+
+# --- ক্রেডিট সেকশন (পরিবর্তন করুন এখানে) ---
+st.markdown("""
+    <div class="footer">
+        <p>Developed with ❤️ by <a href="আপনার_লিঙ্ক" style="color: #FFCC70; text-decoration: none;">MD RASHED MIAH</a></p>
+    </div>
+    """, unsafe_allow_html=True)
