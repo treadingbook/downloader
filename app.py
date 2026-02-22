@@ -2,141 +2,104 @@ import streamlit as st
 import yt_dlp
 import os
 
-# পেজ সেটআপ: টাইটেল এবং আইকন
-st.set_page_config(page_title="Ultra Downloader Pro", page_icon="🎬", layout="centered")
+# পেজ সেটআপ
+st.set_page_config(page_title="Magic Downloader", page_icon="🪄", layout="wide")
 
-# কাস্টম সিএসএস (CSS) দিয়ে স্টাইলিশ লুক তৈরি
+# প্রফেশনাল CSS ডিজাইন
 st.markdown("""
     <style>
-    /* মেইন ব্যাকগ্রাউন্ড */
+    /* মেইন ব্যাকগ্রাউন্ড অ্যানিমেশন */
     .stApp {
-        background: linear-gradient(to right, #1e1e2f, #23233b);
-        color: white;
+        background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+        background-size: 400% 400%;
+        animation: gradient 15s ease infinite;
     }
-    /* টাইটেল স্টাইল */
-    .main-title {
-        text-align: center;
-        font-size: 50px;
-        font-weight: bold;
-        background: -webkit-linear-gradient(#ff4b4b, #ff8a8a);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        margin-bottom: 10px;
+    @keyframes gradient {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
     }
-    /* ইনপুট বক্স */
-    .stTextInput>div>div>input {
-        background-color: #2d2d44;
-        color: white;
-        border: 2px solid #ff4b4b;
-        border-radius: 10px;
+
+    /* গ্লাস ইফেক্ট কার্ড */
+    .glass-card {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 16px;
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        padding: 20px;
+        margin: 10px 0;
     }
-    /* বাটন ডিজাইন */
+
+    /* বাটন স্টাইল */
     .stButton>button {
-        width: 100%;
-        border-radius: 12px;
-        height: 3.5em;
-        background: linear-gradient(45deg, #ff4b4b, #ff8a8a);
-        color: white;
-        font-weight: bold;
-        font-size: 18px;
+        background: #ffffff;
+        color: #e73c7e !important;
+        border-radius: 50px;
         border: none;
+        padding: 10px 24px;
+        font-weight: bold;
         transition: 0.3s;
     }
     .stButton>button:hover {
-        transform: scale(1.02);
-        box-shadow: 0px 5px 15px rgba(255, 75, 75, 0.4);
+        transform: scale(1.05);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
     }
-    /* ইনফো বক্স */
-    .stAlert {
-        border-radius: 10px;
+    
+    h1, h2, h3, p {
+        color: white !important;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
     }
     </style>
     """, unsafe_allow_html=True)
 
-# হেডার সেকশন
-st.markdown('<h1 class="main-title">🚀 Ultra Downloader</h1>', unsafe_allow_html=True)
-st.markdown("<p style='text-align: center;'>মুহূর্তেই ডাউনলোড করুন আপনার পছন্দের সব মিডিয়া</p>", unsafe_allow_html=True)
-st.write("---")
+# কন্টেন্ট এরিয়া
+st.markdown('<div class="glass-card">', unsafe_allow_html=True)
+st.title("🪄 ম্যাজিক ভিডিও ডাউনলোডার")
+st.write("সবচেয়ে দ্রুত এবং সুন্দর উপায়ে ভিডিও সেভ করুন।")
 
-# ইউজার লিঙ্ক ইনপুট
-url = st.text_input("🔗 ভিডিওর লিঙ্কটি এখানে পেস্ট করুন:", placeholder="https://youtube.com/...")
+# ইনপুট
+url = st.text_input("🔗 আপনার লিঙ্কটি এখানে দিন:", placeholder="ইউটিউব বা অন্য লিঙ্ক...")
 
 if url:
     try:
-        with st.spinner('🔍 ভিডিওর তথ্য খোঁজা হচ্ছে...'):
+        with st.spinner('✨ জাদুর মতো তথ্য আনা হচ্ছে...'):
             ydl_opts_info = {
                 'quiet': True,
-                'no_warnings': True,
                 'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
             }
             with yt_dlp.YoutubeDL(ydl_opts_info) as ydl:
                 info = ydl.extract_info(url, download=False)
-                video_url = info.get('url') 
-                video_title = info.get('title')
-                video_description = info.get('description')
-                uploader = info.get('uploader')
+                video_url = info.get('url')
+                title = info.get('title')
 
-            # সুন্দর ভাবে ভিডিও ডিটেইলস দেখানো
-            st.info(f"📌 **নাম:** {video_title}")
+            st.markdown(f"### 🎬 {title}")
             st.video(url)
             
-            with st.expander("📖 ডেসক্রিপশন পড়তে এখানে ক্লিক করুন"):
-                st.write(f"👤 **আপলোডার:** {uploader}")
-                st.markdown("---")
-                st.write(video_description)
-
-            st.success("✨ ডাউনলোড করার জন্য সব রেডি!")
+            st.write("---")
+            format_choice = st.radio("📂 কী ফরম্যাটে নেবেন?", ("ভিডিও (MP4)", "অডিও (MP3)"), horizontal=True)
             
-            # ফরম্যাট সিলেকশন
-            st.write("### 📁 নিচের অপশন থেকে একটি বেছে নিন:")
-            c1, c2 = st.columns(2)
-            with c1:
-                format_choice = st.radio("", ("ভিডিও (MP4)", "অডিও (MP3)"), horizontal=True)
-            
-            # ডাউনলোড বাটন
-            if st.button("📥 প্রসেস ও ডাউনলোড শুরু করুন"):
-                try:
-                    with st.spinner('⚙️ কনভার্ট হচ্ছে... একটু সময় দিন।'):
-                        ydl_opts = {
-                            'nocheckcertificate': True,
-                            'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-                        }
+            if st.button("🚀 এখনই ডাউনলোড করুন"):
+                with st.spinner('⚙️ কাজ চলছে...'):
+                    ydl_opts = {
+                        'nocheckcertificate': True,
+                        'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+                    }
+                    if format_choice == "অডিও (MP3)":
+                        ydl_opts.update({'format': 'bestaudio/best', 'postprocessors': [{'key': 'FFmpegExtractAudio','preferredcodec': 'mp3','preferredquality': '192'}], 'outtmpl': 'm.%(ext)s'})
+                        fname = "m.mp3"
+                    else:
+                        ydl_opts.update({'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]', 'outtmpl': 'v.mp4'})
+                        fname = "v.mp4"
 
-                        if format_choice == "অডিও (MP3)":
-                            ydl_opts.update({
-                                'format': 'bestaudio/best',
-                                'postprocessors': [{
-                                    'key': 'FFmpegExtractAudio',
-                                    'preferredcodec': 'mp3',
-                                    'preferredquality': '192',
-                                }],
-                                'outtmpl': 'music.%(ext)s',
-                            })
-                            final_filename = "music.mp3"
-                        else:
-                            ydl_opts.update({
-                                'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
-                                'outtmpl': 'video.mp4',
-                                'merge_output_format': 'mp4',
-                            })
-                            final_filename = "video.mp4"
+                    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                        ydl.download([url])
 
-                        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                            ydl.download([url])
+                    with open(fname, "rb") as f:
+                        st.download_button(label="💾 আপনার ডিভাইসে সেভ করুন", data=f, file_name=f"Magic_{fname}")
+                    st.balloons()
+    except:
+        st.error("লিঙ্কটি সঠিক নয় বা কাজ করছে না।")
 
-                        with open(final_filename, "rb") as file:
-                            st.download_button(
-                                label=f"💾 {format_choice} আপনার ফোনে সেভ করুন",
-                                data=file,
-                                file_name=f"Ultra_DL_{final_filename}",
-                                mime="video/mp4" if "video" in final_filename else "audio/mp3"
-                            )
-                        st.balloons()
-                except Exception as e:
-                    st.error(f"❌ এরর: {e}")
-
-    except Exception as e:
-        st.error("⚠️ ভিডিওটি পাওয়া যায়নি। লিঙ্কটি পুনরায় চেক করুন।")
-else:
-    st.write("---")
-    st.markdown("<p style='text-align: center; color: #888;'>শুরু করতে উপরে একটি লিঙ্ক দিন।</p>", unsafe_allow_html=True)
+st.markdown('</div>', unsafe_allow_html=True)
