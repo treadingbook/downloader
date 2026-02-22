@@ -1,137 +1,72 @@
 import streamlit as st
 import yt_dlp
 import os
+import time
 
 # পেজ সেটআপ
-st.set_page_config(page_title="Ultimate Downloader", page_icon="📥", layout="wide")
+st.set_page_config(page_title="Ultimate Video Bot", page_icon="🎬", layout="wide")
 
-# শুধুমাত্র স্টাইল (CSS) যোগ করা
-st.markdown("""
-    <style>
-    .stApp {
-        background: linear-gradient(-45deg, #4158D0, #C850C0, #FFCC70, #23d5ab);
-        background-size: 400% 400%;
-        animation: gradient 10s ease infinite;
-    }
-    @keyframes gradient {
-        0% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; }
-    }
-    .main-box {
-        background-color: rgba(255, 255, 255, 0.2);
-        padding: 30px;
-        border-radius: 20px;
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-    }
-    h1, h2, h3, p, label {
-        color: white !important;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-    }
-    .stButton>button {
-        width: 100%;
-        border-radius: 30px;
-        height: 3.5em;
-        background: #ffffff !important;
-        color: #C850C0 !important;
-        font-weight: bold;
-        border: none;
-    }
-    /* ক্রেডিট সেকশনের স্টাইল */
-    .footer {
-        position: fixed;
-        left: 0;
-        bottom: 0;
-        width: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        color: white;
-        text-align: center;
-        padding: 10px;
-        font-weight: bold;
-    }
-    </style>
-    """, unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: #FF4B4B;'>🎬 অল-ইন-ওয়ান ভিডিও বট</h1>", unsafe_allow_html=True)
+st.write("---")
 
-st.markdown('<div class="main-box">', unsafe_allow_html=True)
-st.title("📥 ভিডিও ডাউনলোডার ও ডিটেইলস")
-st.markdown("---")
+# লিঙ্ক ইনপুট বক্স
+url = st.text_input("ভিডিওর লিঙ্কটি এখানে পেস্ট করুন (YouTube, FB, Insta, TikTok):", placeholder="https://...")
 
-url = st.text_input("ভিডিও লিঙ্কটি এখানে দিন:", placeholder="https://...")
-
-if url:
-    try:
-        with st.spinner('ভিডিওর তথ্য ও ডেসক্রিপশন আনা হচ্ছে...'):
-            ydl_opts_info = {'format': 'best'}
-            with yt_dlp.YoutubeDL(ydl_opts_info) as ydl:
-                info = ydl.extract_info(url, download=False)
-                video_url = info.get('url') 
-                video_title = info.get('title')
-                video_description = info.get('description')
-                uploader = info.get('uploader')
-                view_count = info.get('view_count')
-
-            st.subheader(f"🎥 {video_title}")
-            st.video(video_url)
-            
-            with st.expander("ভিডিওর বিস্তারিত ডেসক্রিপশন দেখুন"):
-                st.write(f"**আপলোডার:** {uploader}")
-                st.write(f"**মোট ভিউ:** {view_count}")
-                st.markdown("---")
-                st.text(video_description) 
-
-            st.success("তথ্য লোড হয়েছে! নিচে ডাউনলোড অপশন বেছে নিন।")
-    except Exception as e:
-        st.error("তথ্য আনা সম্ভব হয়নি। লিঙ্কটি আবার চেক করুন।")
-
-st.markdown("---")
-format_choice = st.radio("কী ফরম্যাটে সেভ করতে চান?", ("ভিডিও (MP4)", "অডিও (MP3)"), horizontal=True)
-
-if st.button("ডাউনলোড শুরু করুন"):
+if st.button("ভিডিও লোড করুন"):
     if url:
         try:
-            with st.spinner('ডাউনলোড হচ্ছে...'):
-                if format_choice == "অডিও (MP3)":
-                    ydl_opts = {
-                        'format': 'bestaudio/best',
-                        'postprocessors': [{
-                            'key': 'FFmpegExtractAudio',
-                            'preferredcodec': 'mp3',
-                            'preferredquality': '192',
-                        }],
-                        'outtmpl': 'downloaded_audio.%(ext)s',
-                    }
-                else:
-                    ydl_opts = {
-                        'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
-                        'outtmpl': 'downloaded_video.mp4',
-                        'merge_output_format': 'mp4',
-                    }
+            with st.spinner('ভিডিও এবং তথ্য লোড হচ্ছে...'):
+                # ভিডিওর তথ্য সংগ্রহ (ডাউনলোড ছাড়া)
+                ydl_opts_info = {'format': 'best'}
+                
+                with yt_dlp.YoutubeDL(ydl_opts_info) as ydl:
+                    info = ydl.extract_info(url, download=False)
+                    video_title = info.get('title', 'ভিডিওর শিরোনাম')
+                    video_description = info.get('description', 'ডেসক্রিপশন পাওয়া যায়নি।')
+                    video_url = info.get('url') # সরাসরি স্ট্রিমিং লিঙ্ক
 
-                with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                    info_data = ydl.extract_info(url, download=True)
-                    actual_filename = ydl.prepare_filename(info_data)
+                # স্ক্রিনকে দুই ভাগে ভাগ করা (বাম দিকে প্লেয়ার, ডান দিকে ডেসক্রিপশন)
+                col1, col2 = st.columns([2, 1])
+
+                with col1:
+                    st.subheader("📺 ভিডিও প্রিভিউ")
+                    if video_url:
+                        st.video(url) # সরাসরি অরিজিনাল ইউআরএল থেকে প্লে হবে
+                    else:
+                        st.error("দুঃখিত, এই ভিডিওটি এখানে প্লে করা সম্ভব হচ্ছে না।")
+
+                with col2:
+                    st.subheader("📝 ডেসক্রিপশন")
+                    st.text_area("কপি করতে নিচের বক্সটি ব্যবহার করুন:", value=video_description, height=350)
+
+                st.write("---")
+                
+                # ডাউনলোড সেকশন
+                st.subheader("⬇️ ডাউনলোড জোন")
+                save_filename = f"video_{int(time.time())}.mp4"
+                
+                # ভিডিওটি ডাউনলোড করা যাতে ইউজার সেভ করতে পারে
+                with st.spinner('ডাউনলোড বাটন তৈরি হচ্ছে...'):
+                    ydl_opts_dl = {'format': 'best', 'outtmpl': save_filename}
+                    with yt_dlp.YoutubeDL(ydl_opts_dl) as ydl:
+                        ydl.download([url])
+
+                    with open(save_filename, "rb") as file:
+                        st.download_button(
+                            label="📥 পিসিতে সেভ করুন (Download File)",
+                            data=file,
+                            file_name=f"{video_title}.mp4",
+                            mime="video/mp4",
+                            use_container_width=True
+                        )
                     
-                    if format_choice == "অডিও (MP3)":
-                        actual_filename = actual_filename.replace('.webm', '.mp3').replace('.m4a', '.mp3')
+                    # টেম্পোরারি ফাইল ডিলিট করা
+                    os.remove(save_filename)
 
-                with open(actual_filename, "rb") as file:
-                    st.download_button(
-                        label=f"💾 {format_choice} সেভ করুন",
-                        data=file,
-                        file_name=os.path.basename(actual_filename),
-                        mime="video/mp4" if "video" in actual_filename else "audio/mp3"
-                    )
-                st.balloons()
         except Exception as e:
-            st.error(f"ভুল হয়েছে: {e}")
-st.markdown('</div>', unsafe_allow_html=True)
+            st.error(f"দুঃখিত, ভিডিওটি লোড করা যায়নি। এরর: {str(e)}")
+    else:
+        st.warning("আগে একটি ভিডিওর লিঙ্ক দিন!")
 
-# --- ক্রেডিট সেকশন (পরিবর্তন করুন এখানে) ---
-st.markdown("""
-    <div class="footer">
-        <p>Developed with ❤️ by <a href="https://www.facebook.com/md.rashed.miah.977782" style="color: #FFCC70; text-decoration: none;">MD RASHED MIAH</a></p>
-    </div>
-    """, unsafe_allow_html=True)
-
+st.markdown("---")
+st.caption("দ্রষ্টব্য: বড় ভিডিওর ক্ষেত্রে ডাউনলোড বাটন আসতে কিছুটা সময় লাগতে পারে।")
